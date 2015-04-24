@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--http://stackoverflow.com/questions/5790454/disable-button-with-custom-background-android-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_enabled="false"
+        android:drawable="@drawable/button_shape_disabled" />
+
+    <item
+        android:state_enabled="true" android:state_pressed="false"
+        android:drawable="@drawable/button_shape_enabled" />
+
+    <item
+        android:state_enabled="true" android:state_pressed="true"
+        android:drawable="@drawable/button_shape_enabled_pressed" />
+</selector>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="screenWidthPixels">640</integer>
+    <integer name="screenHeightPixels">360</integer>
+    <integer name="xPercentage">50</integer>
+    <integer name="yPercentage">70</integer>
+</resources>

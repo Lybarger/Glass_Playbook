@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="initial_x">
+        <item>400</item>
+        <item>100</item>
+        <item>700</item>
+        <item>250</item>
+        <item>550</item>
+    </array>
+
+
+
+</resources>

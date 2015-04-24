@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--http://stackoverflow.com/questions/4692642/android-customized-button-changing-text-color-->
+    <item
+        android:state_enabled="false"
+        android:color="@color/husky_medium_gray" />
+
+    <item
+        android:state_enabled="true"
+        android:color="@color/husky_black" />
+
+</selector>
