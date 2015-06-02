@@ -3,7 +3,24 @@ package com.husky.uw.myapplication;
 //Code from:
 //http://www.androidhive.info/2011/11/android-xml-parsing-tutorial/
 
-import android.util.Log;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,19 +35,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import android.util.Log;
 
 public class XMLParser {
 
@@ -69,6 +74,7 @@ public class XMLParser {
 
     /**
      * Getting XML DOM element
+     //* @param XML string
      * */
     public Document getDomElement(String xml){
         Document doc = null;
@@ -113,8 +119,8 @@ public class XMLParser {
     }
 
 
-   // Read play from XML file
-    public Map<Integer,List<List<float[]>>> getPlay(String XML, int playerCount){
+    // Read play from XML file
+    public Play getPlay(String XML, int playerCount){
 // public Map<String,List<String>> getPlay(String XML, int playerCount){
 // public Map<String,String> getStage(String XML, int stageNumber){
         // Data format
@@ -128,13 +134,17 @@ public class XMLParser {
         final String KEY_PLAYER = "player";
         final String KEY_STAGE_NUMBER= "stage_number";
         final String KEY_XY="xy";
+        final String KEY_DATA="data";
         final String KEY_ID="id";
-
+        final String KEY_BALL="ball";
+        final String KEY_SCREEN = "screen";
+        System.out.println("XML" + XML );
         // Create hashmap repository
-        Map<Integer,List<List<float[]>>> result = new HashMap<Integer,List<List<float[]>>>();
+        Map<Integer,List<List<float[]>>> dataPlayers = new HashMap<Integer,List<List<float[]>>>();
+        List<Integer> dataBall = new ArrayList<Integer>();
 
 
-        // Map<String, List<String>> result = new HashMap<String,List<String>>();
+        // Map<String, List<String>> dataPlayers = new HashMap<String,List<String>>();
 
 
         // XML nodes
@@ -148,13 +158,13 @@ public class XMLParser {
         NodeList stageList = document.getElementsByTagName(KEY_STAGE);
         int stageCount =stageList.getLength();
 
-        for (int playerIndex=1; playerIndex <= playerCount; playerIndex++) {
+        for (int playerIndex=0; playerIndex < playerCount; playerIndex++) {
 
             // Create new outer list, stage level information per player
             List<List<float[]>> outerList = new ArrayList<List<float[]>>();
 
             // String name = Integer.toString(i+1);
-            result.put(playerIndex, outerList);
+            dataPlayers.put(playerIndex, outerList);
         }
 
         //Loop through each STAGE
@@ -169,6 +179,9 @@ public class XMLParser {
             //Make sure current STAGE element is not empty
             if (currentElement != null) {
 
+//                System.out.println(getValue(currentElement, KEY_BALL));
+                dataBall.add(Integer.valueOf(getValue(currentElement, KEY_BALL)));
+
                 //Determine if current STAGE element has children
                 if (currentElement.hasChildNodes()) {
 
@@ -176,32 +189,41 @@ public class XMLParser {
                     int j = 0;
                     for (child = currentElement.getFirstChild(); child != null; child = child.getNextSibling()) {
                         // Get child as element
-                        if(child.getNodeType() == Node.ELEMENT_NODE) {
-                            Element childElement = (Element) child;
-                            // Get name of child element
-                            String childName = childElement.getNodeName();
+                        Element childElement = (Element) child;
 
+                        // Get name of child element
+                        String childName = childElement.getNodeName();
+                        //System.out.println( "child name:" + childName+":"+KEY_BALL + ":");
+                        //System.out.println(childName.equals(KEY_BALL));
+                        if (!(childName.equals(KEY_BALL) || childName.equals(KEY_SCREEN))){
                             // Get ID of child (Player number)
-                            String idValueAsString=getValue(childElement, KEY_ID);
+                            //System.out.println( "child is not a ball" );
+                            String idValueAsString = getValue(childElement, KEY_ID);
+                            //System.out.println("ID value as string:" +idValueAsString);
                             int idValue = Integer.valueOf(idValueAsString);
-                            System.out.println(idValue);
+                            //System.out.println(idValue);
 
                             // Get XY coordinates for ID (player)
-                            String coordinatesAsString=getValue(childElement, KEY_XY);
-                            System.out.println(coordinatesAsString);
+                            String coordinatesAsString = getValue(childElement, KEY_DATA);
+                            //System.out.println(coordinatesAsString);
 
                             List<float[]> innerList = new ArrayList<float[]>();
                             innerList = parseCoordinates(coordinatesAsString);
-                            List<List<float[]>> outerList = result.get(idValue);
-                            outerList.add(innerList);
-                        }
+                            for (int x = 0; x < innerList.size(); x++) {
+                                //    System.out.println("X " + Float.toString(innerList.get(x)[0]) + ", Y " + Float.toString(innerList.get(x)[1]));
+                            }
+                            //List<List<float[]>> outerList = dataPlayers.get(idValue);
+                            //outerList.add(innerList);
+                            Set<Integer> keys = dataPlayers.keySet();
 
+                            dataPlayers.get(idValue).add(innerList);
+                        }
                     }
                 }
             }
 
         }
-        return result;
+        return new Play(dataPlayers,dataBall);
        /* else{
             return null;
         }*/
@@ -210,61 +232,33 @@ public class XMLParser {
 
     // Parse strings containing coordinates into a list of float array
     private List<float[]> parseCoordinates(String coordinatesAsString){
+        //System.out.println("Coordinate string:" +coordinatesAsString);
 
         List<float[]> output = new ArrayList<float[]>();
 
         // Determine if coordinates are present
-        boolean coordinatesPresent = !coordinatesAsString.equals("'[]'");
+        boolean coordinatesPresent = !coordinatesAsString.equals("");
 
         if (coordinatesPresent){
+            String[] coordinatesAsStringArray = coordinatesAsString.split(";");
 
-            // Remove single quotes and brackets
-            Pattern p = Pattern.compile("[\\['\\]]");
-            Matcher m = p.matcher(coordinatesAsString);
-            coordinatesAsString = m.replaceAll("");
-
-            // Split string into array
-            // (?<=\\)) positive lookbehind means that it must be preceded by )
-            // (?=\\() positive lookahead means that it must be suceeded by (
-            // (,\\s*) means that it must be splitted on the , and any space after that
-            String[] coordinatesAsStringArray = coordinatesAsString.split("(?<=\\))(,\\s*)(?=\\()");
-
-            // Pattern for removing parentheses
-            p = Pattern.compile("[\\(\\)]");
 
             int coordinateCount = coordinatesAsStringArray.length;
 
             // Loop on pairs of coordinates
             for (int i = 0; i < coordinateCount; i++) {
                 // Set of coordinates in format (x,y)
-                String[] currentCoordinate = coordinatesAsStringArray[i].split(",\\s*");
-
-                // Extract x-coordinate as float, note that leading ( is removed
-                m = p.matcher(currentCoordinate[0]);
-                float x = Float.parseFloat(m.replaceAll(""));
-
-                // Extract y-coordinate as float, note that leading ) is removed
-                m = p.matcher(currentCoordinate[1]);
-                float y = Float.parseFloat(m.replaceAll(""));
-
-                //System.out.println( "coordinates: " + Float.toString(x)+", "+Float.toString(y));
+                String[] currentCoordinate = coordinatesAsStringArray[i].split(",");
 
                 // Add coordinates to output
-                float[] coordinatesAsNumber = new float[2];
+                float[] coordinatesAsNumber = new float[] { Float.parseFloat(currentCoordinate[0]),
+                        Float.parseFloat(currentCoordinate[1]),
+                        Float.parseFloat(currentCoordinate[2]),
+                        Float.parseFloat(currentCoordinate[3])};
 
-                coordinatesAsNumber[0] = x;
-                coordinatesAsNumber[1] = y;
-
-                //System.out.println( "coordinates[]: " + Float.toString(coordinatesAsNumber[0])+", "+Float.toString(coordinatesAsNumber[1]));
                 output.add(coordinatesAsNumber);
 
-                //System.out.println("output1 :" + Float.toString(output.get(i)[0]) + " " + Float.toString(output.get(i)[1]));
-
             }
-            //System.out.println("output2: " + Float.toString(output.get(0)[0]) + " " + Float.toString(output.get(0)[1]));
-            //for (int i1 = 0; i1 < output.size(); i1++) {
-//                System.out.println("output2: " + Float.toString(output.get(i1)[0]) + " " + Float.toString(output.get(i1)[1]));
-//            }
         }
 
         return output;
@@ -301,7 +295,8 @@ public class XMLParser {
     }
     /**
      * Getting node value
-
+     * @param //Element node
+     * @param//key//string
      * */
     public String getValue(Element item, String str) {
         NodeList n = item.getElementsByTagName(str);

@@ -22,6 +22,10 @@ import java.util.Map;
  * Created by lybar_000 on 3/10/2015.
  */
 public class PlayView extends View {
+    public PlayView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+/*
 
     //Define graphics variables
     private Paint paint_circle, paint_canvas, paint_text, paint_path;
@@ -219,11 +223,13 @@ public class PlayView extends View {
         return true;
     }
 
+*/
 /*    //Draw individual player
     private void drawPlayer(Player player){
         canvasPlay.drawCircle(player.X, player.Y, PLAYER_ICON_SIZE, paint_circle);
         canvasPlay.drawText(player.name, player.X, player.Y + text_shift,paint_text);
-    }*/
+    }*//*
+
 
     //Clear canvas (Used to remove path)
     public void clear_canvas(){
@@ -302,12 +308,14 @@ public class PlayView extends View {
         // Create play as Play, based on points imported from XML file
         Play originalPlay = new Play(playMap, 0, 0, 0, false);
 
+*/
 /*        // Initialize player objects and position
         for (int i=0; i<PLAYER_COUNT; i++) {
             //Define player initial positions
 //            players[i]=new Player(INITIAL_X[i], INITIAL_Y[i], Integer.toString(i+1), false);
 
-        }*/
+        }*//*
+
         // Set current (initial) stage index to 0
         currentStage = 0;
 
@@ -448,4 +456,5 @@ public class PlayView extends View {
             players[playerIndex-1].Y = XY[1];
         }
     }
+*/
 }
