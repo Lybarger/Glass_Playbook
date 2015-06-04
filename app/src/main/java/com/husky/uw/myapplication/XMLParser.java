@@ -120,7 +120,7 @@ public class XMLParser {
 
 
     // Read play from XML file
-    public Play getPlay(String XML, int playerCount){
+    public PlayData getPlay(String XML, int playerCount){
 // public Map<String,List<String>> getPlay(String XML, int playerCount){
 // public Map<String,String> getStage(String XML, int stageNumber){
         // Data format
@@ -223,7 +223,7 @@ public class XMLParser {
             }
 
         }
-        return new Play(dataPlayers,dataBall);
+        return new PlayData(dataPlayers,dataBall);
        /* else{
             return null;
         }*/

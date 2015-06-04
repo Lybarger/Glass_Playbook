@@ -13,8 +13,8 @@ import android.graphics.Paint;
  */
 public class Hoop {
 
-    public static int X = 400;
-    public static int Y = 560;
+    public float X;
+    public float Y;
     private static int LINEWIDTH = 4;
     private static int ICON_SIZE = 40;
     private Paint paint;
@@ -22,12 +22,14 @@ public class Hoop {
 
     public Bitmap icon;
 
-    public Hoop(Context mcontext){
+    public Hoop(Context mcontext, Court court){
         if (context == null) {
             context = mcontext;
         }
+        X = court.getHoopPositionPixels()[0];
+        Y = court.getHoopPositionPixels()[1];
 
-        createIcon();
+        //createIcon();
 
     }
 
@@ -55,12 +57,13 @@ public class Hoop {
     // X coordinates for insertion (accounts for width of icon)
     public float getX(){
         // Determine insertion point in view that will center icon at player position
-        return X-(float)icon.getWidth() / 2;
+        return X-(float)ICON_SIZE / 2;
+
     }
 
     // Y coordinate for insertion (accounts for height of icon)
     public float getY(){
         // Determine insertion point in view that will center icon at player position
-        return Y-(float)icon.getHeight()/2;
+        return Y-(float)ICON_SIZE / 2;
     }
 }

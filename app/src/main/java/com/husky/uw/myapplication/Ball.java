@@ -12,6 +12,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by lybar_000 on 5/6/2015.
  */
@@ -24,9 +27,12 @@ public class Ball {
     private static Context context;
 
     public float X; //Ball X position
+
     public float Y; //Ball Y position
 
+
     public int playerIndex; //Player with ball (Note: value of -1 denotes hoop)
+    public int playerIndexInitial;
     public boolean beingPassed; //Ball being passed
     public boolean selected; //Player selection status (selected by touch event)
     public Paint paint, paintPath;
@@ -35,10 +41,16 @@ public class Ball {
 
 
     // Constructor
-    public Ball(float XTemp, float YTemp , int playerIndexTemp, Context mcontext){
-        X = XTemp;
-        Y = YTemp;
+    public Ball(int playerIndexTemp, Context mcontext, Court court){
+
+
         playerIndex = playerIndexTemp;
+        playerIndexInitial = playerIndex;
+        X = court.getPlayerInitialPositions().get(0)[playerIndexTemp];
+
+        Y = court.getPlayerInitialPositions().get(1)[playerIndexTemp];
+
+
         beingPassed = false;
         selected = false;
 
@@ -51,6 +63,14 @@ public class Ball {
         createPath();
     }
 
+
+    public List<Integer> defaultData(){
+        List<Integer> dataNew = new ArrayList<Integer>();
+        dataNew.add(playerIndexInitial);
+
+        return dataNew;
+
+    }
 
     // Create ball icon as bitmap
     public void createIcon() {
@@ -182,7 +202,8 @@ public class Ball {
                         distance = euclideanDistance(location.X, players.X[i],
                                 location.Y, players.Y[i]);
 
-                        if (distance<(float)hoop.icon.getWidth()){
+                        //if (distance<(float)hoop.icon.getWidth()){
+                        if (distance<players.icon[0].getHeight()/2){
                             updateBall(players.X[i], players.Y[i], i, false);
                         }
                         else {
@@ -198,7 +219,7 @@ public class Ball {
                     distance = euclideanDistance(location.X, hoop.X,
                             location.Y, hoop.Y);
 
-                    if (distance<(float)hoop.icon.getWidth()){
+                    if (distance<players.icon[0].getHeight()/2){
                         updateBall(hoop.X, hoop.Y, -1, false);
                     }
                     else {

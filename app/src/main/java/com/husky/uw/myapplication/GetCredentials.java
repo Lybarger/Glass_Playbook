@@ -36,6 +36,8 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
     private Context context;
     private TCPClient tcpClient;
     private CopyOnWriteArrayList<String> responses;
+    private static final String serverIp = "10.0.1.2";
+    private static final int serverPort = 49152;
 
     public GetCredentials(Resources res, Context context,TCPClient tcpClient, CopyOnWriteArrayList<String> responses){
         this.resources = res;
@@ -47,7 +49,7 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         System.out.println("Connecting to the tcp");
-        FileInputStream fis = null;
+/*        FileInputStream fis = null;
         try {
             fis = context.openFileInput("IP_SERVER.txt");
         } catch (FileNotFoundException e) {
@@ -66,15 +68,18 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
         }
         String all = sb.toString();
         String[] splits = all.split(" ");
-        System.out.println("IP " + splits[0]+ " HOST " + splits[1]);
-        this.tcpClient = new TCPClient(splits[0],Integer.parseInt(splits[1]),this.responses);
+        System.out.println("IP " + splits[0]+ " HOST " + splits[1]);*/
+
+        //                            (serverIp, serverPort,responses)
+        this.tcpClient = new TCPClient(serverIp,serverPort,this.responses);
+        //this.tcpClient = new TCPClient(splits[0],Integer.parseInt(splits[1]),this.responses);
         this.tcpClient.start();
     }
 
 
     @Override
     protected Void doInBackground(Void...voids) {
-        String access = "";
+/*        String access = "";
         String secret = "";
         try {
 
@@ -93,11 +98,11 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
         out.println("secret" + secret);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(access, secret);
         AmazonS3 s3Client = new AmazonS3Client(awsCreds);
-        getCredentials(s3Client);
+        getCredentials(s3Client);*/
         return null;
     }
 
-    public void getCredentials(AmazonS3 s3Client){
+    /*public void getCredentials(AmazonS3 s3Client){
         try {
             out.println("Uploading a new object to S3 from a file\n");
             String path = context.getFilesDir() + "/" + "IP_SERVER.txt";
@@ -128,10 +133,10 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
             e.printStackTrace();
         }
         out.println("Finish getting the credentials");
-    }
+    }*/
 
 
-    private void writeTextInputStream(InputStream input)
+/*    private void writeTextInputStream(InputStream input)
             throws IOException {
         // Read one text line at a time and display.
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -144,7 +149,7 @@ public class GetCredentials extends AsyncTask<Void,Void,Void> {
             System.out.println("    " + line);
         }
         System.out.println();
-    }
+    }*/
 
     public void getImage(AmazonS3 s3Client){
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest()

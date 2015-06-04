@@ -18,6 +18,9 @@
     <dimen name="status_font_size">20sp</dimen>
     <dimen name="card_margin">40px</dimen>
 
+    <integer name="court_width">640</integer>
+    <integer name="court_height">360</integer>
+
 
 
 </resources>

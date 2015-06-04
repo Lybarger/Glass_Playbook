@@ -1,9 +1,5 @@
 package com.husky.uw.myapplication;
 
-/**
- * Created by lybar_000 on 5/22/2015.
- */
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,28 +11,25 @@ import java.util.Map;
  */
 public class PlayInterpolated {
 
-    // Changes on glass
-    private static float scaleFactor = 360/640;
-
-
     public Map<Integer,List<List<float[]>>> dataPlayers;
     public List<List<float[]>> dataBall;
     public int FRAMES_PER_STAGE = 90;
-    private Hoop hoop;
 
-    public PlayInterpolated(Play play, Hoop hoopTemp){
-
-        dataPlayers = interpolatePlayers(play);
-        dataBall = interpolateBall(play);
-        hoop = hoopTemp;
-
+    // Constructor
+    public PlayInterpolated(PlayData playData, Court court){
+        dataPlayers = interpolatePlayers(playData, court);
+        dataBall = interpolateBall(playData, court);
     }
 
+    public boolean isValid(){
+        return (dataPlayers != null) && (dataBall != null);
+
+    }
     // Interpolate player positions
-    private Map<Integer,List<List<float[]>>> interpolatePlayers(Play play){
+    private Map<Integer,List<List<float[]>>> interpolatePlayers(PlayData playData, Court court){
 
         // Original (not interpolated) data
-        Map<Integer,List<List<float[]>>> dataOriginal = play.dataPlayers;
+        Map<Integer,List<List<float[]>>> dataOriginal = playData.dataPlayers;
 
         // Repository for new (interpolated) data
         Map<Integer,List<List<float[]>>> dataNew = new HashMap<Integer,List<List<float[]>>>();
@@ -54,28 +47,17 @@ public class PlayInterpolated {
             for (int stageIndex = 0; stageIndex < stageCount; stageIndex++) {
 
                 // Get XY coordinates for player
-                // originalCoordinates = new ArrayList<float[]>();
-                //List<float[]> originalPlayerXY = getXYlist(playerIndex, stageIndex);
                 List<float[]> originalXY = dataOriginal.get(playerIndex).get(stageIndex);
 
                 // Add coordinate list to stage
-                stageList.add(interpolateXY(originalXY));
+                stageList.add(interpolateXY(originalXY, court));
 
-/*                if (playerIndex == 3){
-                    System.out.println( "Stage:" + Integer.toString(stageIndex));
-                    for (float[] item:originalXY) {
-                        System.out.println("ORI X:" + Float.toString(item[0]) + " Y:" + Float.toString(item[1]));
-                    }
-
-                    for (float[] item:interpolateXY(originalXY)){
-
-                        System.out.println("NEW X:" +Float.toString(item[0]) + " Y:" + Float.toString(item[1]));
-                    }
-                }*/
 
             }// End loop on stage
+
             // Add stages to player
             dataNew.put(playerIndex, stageList);
+
         }// End loop on player
 
         return dataNew;
@@ -86,12 +68,14 @@ public class PlayInterpolated {
     }
 
     // Interpolate ball position
-    private List<List<float[]>> interpolateBall(Play play){
+    private List<List<float[]>> interpolateBall(PlayData playData, Court court){
 
         // Original (not interpolated) data
-        List<Integer> dataBallOriginal = play.dataBall;
-        Map<Integer,List<List<float[]>>> dataPlayerOriginal = play.dataPlayers;
+        List<Integer> dataBallOriginal = playData.dataBall;
+        Map<Integer,List<List<float[]>>> dataPlayerOriginal = playData.dataPlayers;
 
+        // Hoop position
+        //float[] hoopPosition = new float[] {court.getHoopPosition()[0], court.getHoopPosition()[1]};
 
         // Repository for (interpolated) data
         List<List<float[]>> dataNew = new ArrayList<List<float[]>>();
@@ -130,7 +114,7 @@ public class PlayInterpolated {
                     originalXY.add(dataPlayerOriginal.get(i).get(stageIndex).get(size - 1));
                 }
                 else {
-                    originalXY.add(new float[] {hoop.X, hoop.Y});
+                    originalXY.add(court.getHoopPositionNorm());
                 }
 
                 // Index of player receiving ball
@@ -142,7 +126,8 @@ public class PlayInterpolated {
                     originalXY.add(dataPlayerOriginal.get(i).get(stageIndex).get(0));
                 }
                 else {
-                    originalXY.add(new float[] {hoop.X, hoop.Y});
+
+                    originalXY.add(court.getHoopPositionNorm());
                 }
             }
             // Ball not passed, so get coordinates of player holding ball
@@ -154,18 +139,21 @@ public class PlayInterpolated {
                     originalXY = new ArrayList<>(dataPlayerOriginal.get(i).get(stageIndex));
                 }
                 else {
-                    originalXY.add(new float[] {hoop.X, hoop.Y});
+                    originalXY.add(court.getHoopPositionNorm());
                 }
             }
-            dataNew.add(interpolateXY(originalXY));
+            dataNew.add(interpolateXY(originalXY, court));
         }
         return dataNew;
     }
 
-    private List<float[]> interpolateXY(List<float[]> XYorig){
+    private List<float[]> interpolateXY(List<float[]> XYorig, Court court){
         // XYorig = XY coordinates as list of array
+        float courtWidth = court.courtWidthPixels;
+        float courtHeight = court.courtHeightPixels;
 
         // Initialize list for interpolated coordinates
+        List<float[]> XYscaled = new ArrayList<float[]>();
         List<float[]> XYnew = new ArrayList<float[]>();
 
         float[] xy;
@@ -174,6 +162,23 @@ public class PlayInterpolated {
         // Number of points for selected stage and player
         int pointCount = XYorig.size();
 
+        for (int pointIndex = 0; pointIndex < pointCount; pointIndex++) {
+
+            /*XYscaled.get(pointIndex)[0] = XYorig.get(pointIndex)[0]*courtWidth;
+            XYorig.get(pointIndex)[1] = XYorig.get(pointIndex)[1]*courtHeight;*/
+
+            if (XYorig.get(pointIndex).length > 2) {
+
+                XYscaled.add(new float[]{XYorig.get(pointIndex)[0] * courtWidth,
+                        XYorig.get(pointIndex)[1] * courtHeight,
+                        XYorig.get(pointIndex)[2],
+                        XYorig.get(pointIndex)[3]});
+            }
+            else {
+                XYscaled.add(new float[]{XYorig.get(pointIndex)[0] * courtWidth,
+                        XYorig.get(pointIndex)[1] * courtHeight});
+            }
+        }
 
         // Only 1 coordinate in current stage, so repeat value
         if (pointCount == 1) {
@@ -181,11 +186,11 @@ public class PlayInterpolated {
             screen = new float[2];
 
 
-            xy[0] = XYorig.get(0)[0];
-            xy[1] = XYorig.get(0)[1];
-            if (XYorig.get(0).length > 2) {
-                screen[0] = XYorig.get(0)[2];
-                screen[1] = XYorig.get(0)[3];
+            xy[0] = XYscaled.get(0)[0];
+            xy[1] = XYscaled.get(0)[1];
+            if (XYscaled.get(0).length > 2) {
+                screen[0] = XYscaled.get(0)[2];
+                screen[1] = XYscaled.get(0)[3];
                 data = new float[]{xy[0], xy[1], screen[0], screen[1]};
             }
             else {
@@ -209,10 +214,10 @@ public class PlayInterpolated {
 
                 // Calculate distance between i and i+1 points
                 distance = euclideanDistance(
-                        XYorig.get(pointIndex    )[0],
-                        XYorig.get(pointIndex + 1)[0],
-                        XYorig.get(pointIndex    )[1],
-                        XYorig.get(pointIndex + 1)[1]);
+                        XYscaled.get(pointIndex    )[0],
+                        XYscaled.get(pointIndex + 1)[0],
+                        XYscaled.get(pointIndex    )[1],
+                        XYscaled.get(pointIndex + 1)[1]);
 
                 // Create running total of distance traveled
                 totalDistance[pointIndex + 1] = totalDistance[pointIndex] + distance;
@@ -266,8 +271,8 @@ public class PlayInterpolated {
                 }
 
                 // XY coordinates preceding and following target
-                float[] xy1 = XYorig.get(previousIndex);
-                float[] xy2 = XYorig.get(nextIndex);
+                float[] xy1 = XYscaled.get(previousIndex);
+                float[] xy2 = XYscaled.get(nextIndex);
 
                 // Interpolated coordinate
                 xy[0] = xy1[0] + (xy2[0] - xy1[0]) * interpolationWeight;
@@ -278,17 +283,13 @@ public class PlayInterpolated {
                     if (screenAngle < 0){screenAngle = screenAngle + 360;}
                     data = new float[]{xy[0],  xy[1], xy2[2], screenAngle};
 
-                    System.out.println("Planter plated" +Float.toString(data[0]) + " " + Float.toString(data[1]) + " " + Float.toString(data[2]) + " " + Float.toString(data[3]));
+                    //System.out.println("Planter plated" +Float.toString(data[0]) + " " + Float.toString(data[1]) + " " + Float.toString(data[2]) + " " + Float.toString(data[3]));
                 }
                 else {
                     data = new float[]{xy[0],  xy[1]};
                 }
 
-
                 // Add interpolated XY points to Coordinate list
-                //XYnew.add(xy);
-                data[0] = data[0]*scaleFactor;
-                data[1] = data[1]*scaleFactor;
                 XYnew.add(data);
             }
         }
@@ -405,9 +406,8 @@ public class PlayInterpolated {
 
     }
 
-
-
     public float euclideanDistance(float x1, float x2, float y1, float y2) {
         return (float) Math.pow(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2), 0.5);
     }
 }
+

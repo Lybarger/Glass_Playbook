@@ -9,11 +9,11 @@ import java.util.Map;
 /**
  * Created by lybar_000 on 4/14/2015.
  */
-public class Play {
+public class PlayData {
 
     public Map<Integer,List<List<float[]>>> dataPlayers;
     public List<Integer> dataBall = new ArrayList<Integer>();
-    public Map<Integer,List<List<float[]>>> dataScreens;
+    //public Map<Integer,List<List<float[]>>> dataScreens;
 
     public int currentStage;
     public int currentPoint;
@@ -22,7 +22,7 @@ public class Play {
 
 
 
-    public Play(Map<Integer,List<List<float[]>>> dataPlayersTemp, List<Integer> dataBallTemp){
+    public PlayData(Map<Integer, List<List<float[]>>> dataPlayersTemp, List<Integer> dataBallTemp){
 
 //        public Play(Map<Integer,List<List<float[]>>> pointsTemp, int currentStageTemp,  float stagePercentCompleteTemp, int currentPointTemp,
         //       boolean playCompleteTemp){
@@ -70,14 +70,9 @@ public class Play {
 
     }
 
-
-
-
     public int getStageCount(){
         Object key = dataPlayers.keySet().toArray()[0];
         return dataPlayers.get(key).size();
     }
-
-
 
 }

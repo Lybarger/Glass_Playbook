@@ -1,8 +1,5 @@
 package com.husky.uw.myapplication;
 
-/**
- * Created by lybar_000 on 5/22/2015.
- */
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -13,6 +10,11 @@ import android.graphics.Path;
 import android.graphics.Typeface;
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by lybar_000 on 4/2/2015.
  */
@@ -20,17 +22,19 @@ public class Players {
 
 
     public static int PLAYER_COUNT = 5;
-    private static float[] INITIAL_X = new float[] {400, 100, 700, 250, 550};
-    private static float[] INITIAL_Y = new float[] {200, 350, 350, 500, 500};
+    //private static float[] INITIAL_X = new float[] {400, 100, 700, 250, 550};
+    //private static float[] INITIAL_Y = new float[] {200, 350, 350, 500, 500};
     private static String[] NAMES = new String[] {"1", "2", "3", "4", "5"};
     private int WIDTH_SCREEN = 100;
     private int HEIGHT_SCREEN = 100;
 
 
-    public float X[] = new float[PLAYER_COUNT]; //Player X positions
-    private float Xp[] = new float[PLAYER_COUNT];
-    public float Y[] = new float[PLAYER_COUNT]; //Player Y positions
-    private float Yp[] = new float[PLAYER_COUNT];
+    public float[] X = new float[PLAYER_COUNT]; //Player X positions
+    private float[] Xi = new float[PLAYER_COUNT];
+    private float[] Xp = new float[PLAYER_COUNT];
+    public float[] Y = new float[PLAYER_COUNT]; //Player Y positions
+    private float[] Yi = new float[PLAYER_COUNT];
+    private float[] Yp = new float[PLAYER_COUNT];
     public String[] name = new String[PLAYER_COUNT]; //Player name (ID)
     public boolean[] screenPresent = new boolean[PLAYER_COUNT];
     public float[] screenAngle = new float[PLAYER_COUNT];
@@ -50,7 +54,10 @@ public class Players {
     private static int TEXT_SIZE = 30;
     private static int TEXT_SHIFT = TEXT_SIZE*6/20;
 
-    public Players(Context mcontext){
+    private float courtWidthPixels;
+    private float courtHeightPixels;
+
+    public Players(Context mcontext, Court court){
         if (context == null) {
             context = mcontext;
         }
@@ -63,11 +70,13 @@ public class Players {
         paintPath.setStrokeJoin(Paint.Join.ROUND);
         paintPath.setStrokeCap(Paint.Cap.ROUND);
 
+        Xi = court.getPlayerInitialPositions().get(0);
+        Yi = court.getPlayerInitialPositions().get(1);
+
+
         for (int i = 0; i < PLAYER_COUNT; i++){
-            X[i] = INITIAL_X[i];
-            //Xprevious[i] = X[i];
-            Y[i] = INITIAL_Y[i];
-            //Yprevious[i] = Y[i];
+            X[i] = Xi[i];
+            Y[i] = Yi[i];
             name[i] = NAMES[i];
             path[i] = new Path();
             screenPresent[i] = false;
@@ -75,7 +84,8 @@ public class Players {
             selectionStatus[i] = false;
         }
 
-
+        courtWidthPixels = context.getResources().getInteger(R.integer.court_width);
+        courtHeightPixels = context.getResources().getInteger(R.integer.court_height);
 
 
         createIcons();
@@ -85,10 +95,26 @@ public class Players {
 
     }
 
+    public Map<Integer,List<List<float[]>>> defaultData (){
+        Map<Integer,List<List<float[]>>> dataNew = new HashMap<Integer,List<List<float[]>>>();
+        for (int i = 0; i < PLAYER_COUNT; i++) {
+            List<float[]> innerList = new ArrayList<float[]>();
+            innerList.add(new float[]{Xi[i]/courtWidthPixels,Yi[i]/courtHeightPixels,0,0});
+            List<List<float[]>> outerList = new ArrayList<List<float[]>>();
+            outerList.add(innerList);
+            dataNew.put(i,outerList);
+        }
+        return dataNew;
+    }
+
+
     public void reinitialize(){
+
+
+
         for (int i = 0; i < PLAYER_COUNT; i++){
-            X[i] = INITIAL_X[i];
-            Y[i] = INITIAL_Y[i];
+            X[i] = Xi[i];
+            Y[i] = Yi[i];
             selectionStatus[i] = false;
             screenPresent[i] = false;
             screenAngle[i] = 0;
@@ -197,10 +223,14 @@ public class Players {
                     minDistanceToOtherPlayers = Math.min(distance, minDistanceToOtherPlayers);
 
                     // Other player encountered?
-                    obstacleEncountered = obstacleEncountered || (minDistanceToOtherPlayers < (float) ICON_SIZE / 2);
+                    obstacleEncountered = obstacleEncountered || (minDistanceToOtherPlayers < (float) ICON_SIZE);
 
                 }
             }
+
+            // Check screen bounds
+            obstacleEncountered = obstacleEncountered || (touch.X < 0 + ICON_SIZE/2) || (touch.X > courtWidthPixels - ICON_SIZE/2)
+                    || (touch.Y < 0 + ICON_SIZE/2) || (touch.Y > courtHeightPixels - ICON_SIZE/2);
 
             // Distance between touch event and jth player
             float distanceToTouch = euclideanDistance(touch.X, X[j],
@@ -221,14 +251,7 @@ public class Players {
                         // Move path to location of current touch event
                         path[j].moveTo(X[j], Y[j]);
 
-                        //float[] XY = new float[] {X[j], Y[j]};
                         output = j;
-                        // Create output array
-                        //output[0] = j;
-                        //output[1] = X[j];
-                        //output[2] = Y[j];
-                        // Add points to map
-                        //data.add(XY);
                     }
                     break;
 
@@ -408,8 +431,8 @@ public class Players {
         for (int i = 0; i < PLAYER_COUNT; i++) {
 
             // Draw player icons on canvas
-            canvas.drawBitmap(icon[i], getX(i), getY(i), null);
             canvas.drawPath(path[i], paintPath);
+            canvas.drawBitmap(icon[i], getX(i), getY(i), null);
 
             if (screenPresent[i]){
                 canvas.drawBitmap(iconScreen[i],getScreenX(i),getScreenY(i),null);
