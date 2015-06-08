@@ -13,23 +13,17 @@ public class PlayData {
 
     public Map<Integer,List<List<float[]>>> dataPlayers;
     public List<Integer> dataBall = new ArrayList<Integer>();
-    //public Map<Integer,List<List<float[]>>> dataScreens;
 
     public int currentStage;
     public int currentPoint;
     public float stagePercentComplete;
     public boolean playComplete;
 
-
-
     public PlayData(Map<Integer, List<List<float[]>>> dataPlayersTemp, List<Integer> dataBallTemp){
 
-//        public Play(Map<Integer,List<List<float[]>>> pointsTemp, int currentStageTemp,  float stagePercentCompleteTemp, int currentPointTemp,
-        //       boolean playCompleteTemp){
 
         dataPlayers = dataPlayersTemp;
         dataBall = dataBallTemp;
-        //dataScreens = dataScreensTemp;
 
         currentStage = 0;
         stagePercentComplete = 0;

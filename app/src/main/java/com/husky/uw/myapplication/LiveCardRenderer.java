@@ -34,7 +34,7 @@ public class LiveCardRenderer implements DirectRenderingCallback {
     /**
      * The duration, in millisconds, of one frame.
      */
-    private static final long FRAME_TIME_MILLIS = 40;
+    private static final long FRAME_TIME_MILLIS = 50;
 
     /**
      * "Hello world" text size.
@@ -147,29 +147,8 @@ public class LiveCardRenderer implements DirectRenderingCallback {
 
     }
 
-/*    private void loadPlay(String playAsXml){
 
-
-        System.out.println("In loadPlay");
-
-        // Update player and ball initial positions
-*//*        for (int playerIndex : playInterpolated.dataPlayers.keySet()){
-            players.updateXY(playerIndex, playInterpolated.getXYcoordinate(playerIndex, 0, 0));
-        }*//*
-
-        *//*
-        ball.updateXY(playInterpolated.dataBall.get(0).get(0));
-
-        // Reset paths and move to initial positions
-        players.pathsReset();
-        players.pathsMoveToPlayerPositions();
-        ball.path.reset();
-        ball.path.moveTo(ball.X, ball.Y);*//*
-
-    }*/
     public void checkResponse(){
-        System.out.println("Check responses");
-
 
             if (!this.responses.isEmpty()) {
                 System.out.println("Responses is not empty");
@@ -181,25 +160,6 @@ public class LiveCardRenderer implements DirectRenderingCallback {
 
                 // Parse XML play into map
                 PlayData originalPlayData = parser.getPlay(playAsXml, PLAYER_COUNT);
-
-/*                // Set current (initial) stage index to 0
-                stage = 0;
-                frame = 0;
-
-                // Interpolate play
-                playInterpolated = new PlayInterpolated(originalPlay, court);
-
-                // Update player and ball initial positions
-                for (int playerIndex : playInterpolated.dataPlayers.keySet()){
-                    players.updateXY(playerIndex, playInterpolated.getXYcoordinate(playerIndex, 0, 0));
-                }
-                ball.updateXY(playInterpolated.dataBall.get(0).get(0));
-
-                // Reset paths and move to initial positions
-                players.pathsReset();
-                players.pathsMoveToPlayerPositions();
-                ball.path.reset();
-                ball.path.moveTo(ball.X, ball.Y);*/
 
                 playInterpolated = new PlayInterpolated(originalPlayData, court);
                 playElements = new PlayElements(players, ball);
@@ -252,51 +212,12 @@ public class LiveCardRenderer implements DirectRenderingCallback {
 
     // updates play to display new stage on screen
     public void updatePlay(){
-/*        // Determine if end of stage reached
-        //System.out.println("update play");
-        if (frame >= FRAMES_PER_STAGE-1){
-
-            // Increment stage
-            stage++;
-
-            // Determine if end of play reached
-            if (true){ // stage >= playInterpolated.getStageCount()
-                // Reset stage
-
-                if (!this.responses.isEmpty()) {
-                    checkResponse();
-                }
-
-                else {
-                    mRenderingPaused = true;
-                    //manualRead();
-                    mRenderingPaused = false;
-                }
-                stage = 0;
-            }
-            // Reset frame counter within stage
-            frame = 0;
-        }
-        else{
-            // Increment frame count within stage
-            frame++;
-        }*/
-
-/*        if (playInterpolated != null) {
-            // Loop on players
-            for (int i : playInterpolated.dataPlayers.keySet()) {
-            //players.updateXY(i, playInterpolated.getXYcoordinate(i, stage, frame));
-            //float[] xx = ;
-//            players.updateData(i, playInterpolated.getData(i,stage,frame));
-//System.out.println( "player" + players.X[1]);
-            //System.out.println("Playview " +Float.toString(xx[0]) + " " + Float.toString(xx[1]) + " " + Float.toString(xx[2]) + " " + Float.toString(xx[3]));
-            //System.out.println(players.screenPresent[i]);
-            //System.out.println(players.screenAngle[i]);
-            //players.screenPresent[i]=true;
-        }*/
 
 
-        if (playInterpolated.isValid()){
+            checkResponse();
+
+
+/*        if (playInterpolated.isValid()){
             if (playElements.playEndReached){
                 if (!this.responses.isEmpty()) {
                     checkResponse();
@@ -309,93 +230,11 @@ public class LiveCardRenderer implements DirectRenderingCallback {
             if (!this.responses.isEmpty()) {
                 checkResponse();
             }
-        }
+        }*/
 
         playElements = playing.updatePlay(playInterpolated,playElements);
 
 
-
-/*
-        if (playInterpolated.isValid()) {
-
-            // Determine if end of stage reached
-            if (frame >= FRAMES_PER_STAGE-1){
-
-                // Increment stage
-                stage++;
-                // Reset frame counter within stage
-                frame = 0;
-
-                // Determine if end of play reached
-                if (stage >= playInterpolated.getStageCount()){
-
-                    if (!this.responses.isEmpty()) {
-                        checkResponse();
-                    }
-
-                    // Reset stage
-                    stage = 0;
-
-                    // Reset paths
-                    players.pathsReset();
-                    ball.path.reset();
-
-                    // Update player and ball location to initial starting positions
-                    for (int i : playInterpolated.dataPlayers.keySet()) {
-                        players.updateData(i, playInterpolated.getData(i,stage,frame));
-                    }
-                    ball.updateXY(playInterpolated.dataBall.get(stage).get(frame));
-
-                    // Move paths to initial starting locations
-                    players.pathsMoveToPlayerPositions();
-                    ball.pathMoveToPosition();
-                }
-
-            }
-            else{
-                // Increment frame count within stage
-                frame++;
-            }
-            ball.updateXY(playInterpolated.dataBall.get(stage).get(frame));
-            ball.beingPassed = true;
-
-            // Loop on players
-            for (int playerIndex : playInterpolated.dataPlayers.keySet()) {
-                // Store previous XY coordinates
-                float Xprevious = players.X[playerIndex];
-                float Yprevious = players.Y[playerIndex];
-
-                // Update player positions
-                players.updateData(playerIndex, playInterpolated.getData(playerIndex, stage, frame));
-
-                // Determine average XY coordinates for quadratic interpolation
-                float Xavg = (Xprevious + players.X[playerIndex]) / 2;
-                float Yavg = (Yprevious + players.Y[playerIndex]) / 2;
-
-                // Update player paths using quadratic interpolation
-                players.path[playerIndex].quadTo(Xprevious, Yprevious, Xavg, Yavg);
-
-                // Determine if player has bought all or if ball is being passed
-                boolean playerHasBall = ((ball.X == players.X[playerIndex]) && (ball.Y == players.Y[playerIndex]));
-                ball.beingPassed = ball.beingPassed && !playerHasBall;
-            }
-
-            // If ball is being passed, then draw path
-            if (ball.beingPassed) {
-                ball.path.lineTo(ball.X, ball.Y);
-            }
-            // If player has ball, then do not draw path
-            else {
-                ball.path.moveTo(ball.X, ball.Y);
-            }
-
-        }
-        else {
-            if (!this.responses.isEmpty()) {
-                checkResponse();
-            }
-        }
-*/
 
     }
 
@@ -417,24 +256,6 @@ public class LiveCardRenderer implements DirectRenderingCallback {
             canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             canvas.drawColor(Color.WHITE);
             /**/canvas.drawBitmap(court.bitmap, 0, 0, null);
-            // Sets background to image of court
-            //background = resizeImage(background, 640, 360);
-            //canvas.drawBitmap(background, 0, 0, null);
-            //System.out.println("Height: " + Integer.toString(background.getHeight()) + ", Width:" + Integer.toString(background.getWidth()));
-
-            // for debugging
-            //initialPlayerInsert(canvas);
-
-            // Update player icon positions
-/*            for (int i = 0; i < PLAYER_COUNT; i++) {
-
-                // Determine location of player icon, with offset
-                float X = players.getX(i);
-                float Y = players.getY(i);
-
-                // Draw player icons on canvas
-                canvas.drawBitmap(players.icon[i], X, Y, null);
-            }*/
 
             // Draw court
             canvas.drawBitmap(court.bitmap,0, 0, null);

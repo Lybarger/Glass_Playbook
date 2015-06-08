@@ -13,7 +13,7 @@ public class PlayInterpolated {
 
     public Map<Integer,List<List<float[]>>> dataPlayers;
     public List<List<float[]>> dataBall;
-    public int FRAMES_PER_STAGE = 90;
+    public int FRAMES_PER_STAGE = 50;
 
     // Constructor
     public PlayInterpolated(PlayData playData, Court court){
