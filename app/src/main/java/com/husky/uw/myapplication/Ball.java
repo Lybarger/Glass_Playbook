@@ -146,12 +146,15 @@ public class Ball {
 
     // Update ball on double tap
     public void updateBall(float XTemp, float YTemp, int playerIndexTemp, boolean selectedTemp){
-        X = XTemp;
-        Y = YTemp;
+
         playerIndex = playerIndexTemp;
         selected = selectedTemp;
+        X = XTemp;
+        Y = YTemp;
+
+        path.lineTo(X + 0.1f, Y + 0.1f);
+
         createIcon();
-        path.lineTo(X, Y);
     }
 
     // Update ball selection status
@@ -169,15 +172,11 @@ public class Ball {
             // Update ball icon, based on new selection state
             createIcon();
 
-            //
-            System.out.println( "Selection status:  " + Boolean.toString(selected));
-            System.out.println( "player index: " + Integer.toString(playerIndex));
-
-/*            if (playerIndex >= 0) {
+            if (playerIndex >= 0) {
                 path.moveTo(players.X[playerIndex], players.Y[playerIndex]);
             } else {
                 path.moveTo(hoop.X, hoop.Y);
-            }*/
+            }
         }
         return distanceCheckBall;
     }
@@ -196,7 +195,7 @@ public class Ball {
                 case MotionEvent.ACTION_MOVE:
                     // Update ball location based on touch
                     updateLocation(location.X, location.Y);
-                    //pathLineToPosition();
+
                     break;
 
                 //Touch UP
@@ -206,7 +205,7 @@ public class Ball {
                         distance = euclideanDistance(location.X, players.X[i],
                                 location.Y, players.Y[i]);
 
-                        if (distance<players.icon[0].getHeight()/2){
+                        if (distance < players.icon[0].getHeight()/2){
                             updateBall(players.X[i], players.Y[i], i, false);
                         }
                         else {
@@ -227,12 +226,10 @@ public class Ball {
                     }
                     else {
                         if (playerIndex >= 0) {
-                            X = players.X[playerIndex];
-                            Y = players.Y[playerIndex];
+                            updateLocation(players.X[playerIndex], players.Y[playerIndex]);
                         }
                         else {
-                            X = hoop.X;
-                            Y = hoop.Y;
+                            updateLocation(hoop.X, hoop.Y);
                         }
                     }
                     break;
