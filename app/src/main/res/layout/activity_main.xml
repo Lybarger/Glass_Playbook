@@ -10,6 +10,6 @@
         android:id="@+id/play"
         android:layout_width="640dp"
         android:layout_height="360dp"
-        android:background="@drawable/half_court_cropped"
+
         />
 </RelativeLayout>

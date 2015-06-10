@@ -1,9 +1,5 @@
 package com.husky.uw.myapplication;
 
-/**
- * Created by lybar_000 on 5/22/2015.
- */
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -25,12 +21,8 @@ public class Ball {
     private int LINEWIDTH_PATH = 3;
     private float[] dashLength = new float[]{10.0f, 10.0f};
     private static Context context;
-
     public float X; //Ball X position
-
     public float Y; //Ball Y position
-
-
     public int playerIndex; //Player with ball (Note: value of -1 denotes hoop)
     public int playerIndexInitial;
     public boolean beingPassed; //Ball being passed
@@ -43,15 +35,21 @@ public class Ball {
     // Constructor
     public Ball(int playerIndexTemp, Context mcontext, Court court){
 
-
+        // Index of player with ball
         playerIndex = playerIndexTemp;
+
+        // Initial index of player with ball
         playerIndexInitial = playerIndex;
+
+        // Ball XY coordinates
         X = court.getPlayerInitialPositions().get(0)[playerIndexTemp];
-
         Y = court.getPlayerInitialPositions().get(1)[playerIndexTemp];
+        //pathMoveToPosition();
 
-
+        // Ball being passed?
         beingPassed = false;
+
+        // Ball selected?
         selected = false;
 
 
@@ -59,17 +57,16 @@ public class Ball {
             context = mcontext;
         }
 
+        // Create ball icon and path
         createIcon();
         createPath();
     }
 
-
+    // Default ball data
     public List<Integer> defaultData(){
         List<Integer> dataNew = new ArrayList<Integer>();
         dataNew.add(playerIndexInitial);
-
         return dataNew;
-
     }
 
     // Create ball icon as bitmap
@@ -138,6 +135,13 @@ public class Ball {
 
         // Create path
         path = new Path();
+        pathMoveToPosition();
+    }
+
+    // Update location
+    public void updateLocation(float XTemp, float YTemp){
+        X = XTemp;
+        Y = YTemp;
     }
 
     // Update ball on double tap
@@ -150,20 +154,15 @@ public class Ball {
         path.lineTo(X, Y);
     }
 
-    // Update location
-    public void updateLocation(float XTemp, float YTemp){
-        X = XTemp;
-        Y = YTemp;
-    }
-
+    // Update ball selection status
+    // Called by double tap
     public Boolean updateStatus(Players players, Hoop hoop, Location touch) {
-        // Check distance between ball and touch event
-        // TRUE = ball double tapped
-        // FALSE = ball NOT double tapped
+        // Determine if ball touched by double tap
         boolean distanceCheckBall = (float) icon.getWidth() / 2 >
                 euclideanDistance(X, touch.X, Y, touch.Y);
 
         if (distanceCheckBall) {
+
             // Ball double tapped, so toggle selection state
             selected = !selected;
 
@@ -171,21 +170,25 @@ public class Ball {
             createIcon();
 
             //
-            if (playerIndex >= 0) {
+            System.out.println( "Selection status:  " + Boolean.toString(selected));
+            System.out.println( "player index: " + Integer.toString(playerIndex));
+
+/*            if (playerIndex >= 0) {
                 path.moveTo(players.X[playerIndex], players.Y[playerIndex]);
             } else {
                 path.moveTo(hoop.X, hoop.Y);
-            }
+            }*/
         }
         return distanceCheckBall;
     }
 
+    // Update ball position
     public void updateBallPosition(MotionEvent event, Location location, Players players, Hoop hoop){
         // Only modified ball if previously selected through double tap
         if (selected){
 
-
             float distance;
+
             // Evaluate touch actions
             switch (event.getAction()) {
 
@@ -193,6 +196,7 @@ public class Ball {
                 case MotionEvent.ACTION_MOVE:
                     // Update ball location based on touch
                     updateLocation(location.X, location.Y);
+                    //pathLineToPosition();
                     break;
 
                 //Touch UP
@@ -202,7 +206,6 @@ public class Ball {
                         distance = euclideanDistance(location.X, players.X[i],
                                 location.Y, players.Y[i]);
 
-                        //if (distance<(float)hoop.icon.getWidth()){
                         if (distance<players.icon[0].getHeight()/2){
                             updateBall(players.X[i], players.Y[i], i, false);
                         }
@@ -247,19 +250,17 @@ public class Ball {
             }
         }
 
-
-
-
     }
 
+    // Reinitialize ball (location and icon format)
     public void reinitialize(Players players){
         playerIndex = 0;
         X = players.X[playerIndex];
         Y = players.Y[playerIndex];
         selected = false;
-
+        path.reset();
+        pathMoveToPosition();
         createIcon();
-
 
     }
 

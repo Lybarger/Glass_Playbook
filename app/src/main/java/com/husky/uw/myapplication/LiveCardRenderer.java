@@ -52,9 +52,9 @@ public class LiveCardRenderer implements DirectRenderingCallback {
     private static final int MAX_ALPHA = 256;
 
     private static final int PLAYER_COUNT = 5;
-    private static int SCREEN_WIDTH = 640;
+    /*private static int SCREEN_WIDTH = 640;
     private static int SCREEN_HEIGHT = 360;
-    private Paint ballPaint;
+    private Paint ballPaint;*/
     //private Paint paint_circle;     // draws player circle
     //private Paint paint_text;       // draws number on player
     //private Paint textPaint;        // text displays current stage
@@ -69,25 +69,25 @@ public class LiveCardRenderer implements DirectRenderingCallback {
     private RenderThread mRenderThread;
 
     // defines pixels of height and width
-    private float screenWidthPixels;
-    private float screenHeighthPixels;
-
+/*    private float screenWidthPixels;
+    private float screenHeighthPixels;*/
+/*
     private Bitmap background;
 
-    private final int positionFont = 20;
+    private final int positionFont = 20;*/
 
     private final int FRAME_RATE = 30;
     private final int STAGE_LENGTH = 3;   //Time in seconds
-    private int FRAMES_PER_STAGE = FRAME_RATE*STAGE_LENGTH;
+/*    private int FRAMES_PER_STAGE = FRAME_RATE*STAGE_LENGTH;
     private int frame = 0;
-    private int stage = 0;
+    private int stage = 0;*/
 
     private Bitmap[] playerIcons = new Bitmap[PLAYER_COUNT];
     //Player definition constants
     private int PLAYER_ICON_SIZE = 40;
-    private int selection_size = PLAYER_ICON_SIZE*1;
-    private int text_size = 30;
-    private int text_shift = text_size*6/20;
+/*    private int selection_size = PLAYER_ICON_SIZE*1;
+    private int text_size = 30;*/
+    // private int text_shift = text_size*6/20;
 
     //public Player[] players = new Player[PLAYER_COUNT];
     private Map<String,List<String>> points;
@@ -130,21 +130,13 @@ public class LiveCardRenderer implements DirectRenderingCallback {
         // Create default interpolated play (no movement)
         playInterpolated = new PlayInterpolated(new PlayData(players.defaultData(),ball.defaultData()), court);
 
-
         playing = new Playing();
 
         // Update player and ball (bundled in playElements)
         playElements = playing.updatePlay(playInterpolated,playElements);
 
-
-        // Replay as XML
-        //XML String is what given from TCP connection
+        // Check TCP for responses
         checkResponse();
-        //String playAsXml = XMLString();
-
-
-        //loadPlay(playAsXml);
-
     }
 
 
@@ -153,7 +145,6 @@ public class LiveCardRenderer implements DirectRenderingCallback {
             if (!this.responses.isEmpty()) {
                 System.out.println("Responses is not empty");
                 String playAsXml = this.responses.remove(0);
-
 
                 // Create instance of XML parser
                 XMLParser parser = new XMLParser();

@@ -22,19 +22,15 @@ public class Players {
 
 
     public static int PLAYER_COUNT = 5;
-    //private static float[] INITIAL_X = new float[] {400, 100, 700, 250, 550};
-    //private static float[] INITIAL_Y = new float[] {200, 350, 350, 500, 500};
     private static String[] NAMES = new String[] {"1", "2", "3", "4", "5"};
+
     private int WIDTH_SCREEN = 100;
     private int HEIGHT_SCREEN = 100;
 
-
     public float[] X = new float[PLAYER_COUNT]; //Player X positions
     private float[] Xi = new float[PLAYER_COUNT];
-    private float[] Xp = new float[PLAYER_COUNT];
     public float[] Y = new float[PLAYER_COUNT]; //Player Y positions
     private float[] Yi = new float[PLAYER_COUNT];
-    private float[] Yp = new float[PLAYER_COUNT];
     public String[] name = new String[PLAYER_COUNT]; //Player name (ID)
     public boolean[] screenPresent = new boolean[PLAYER_COUNT];
     public float[] screenAngle = new float[PLAYER_COUNT];
@@ -79,6 +75,7 @@ public class Players {
             Y[i] = Yi[i];
             name[i] = NAMES[i];
             path[i] = new Path();
+            path[i].moveTo(X[i], Y[i]);
             screenPresent[i] = false;
             screenAngle[i] = 0;
             selectionStatus[i] = false;
@@ -87,11 +84,8 @@ public class Players {
         courtWidthPixels = context.getResources().getInteger(R.integer.court_width);
         courtHeightPixels = context.getResources().getInteger(R.integer.court_height);
 
-
         createIcons();
         createScreenIcons();
-        // createPath();
-
 
     }
 
@@ -109,8 +103,6 @@ public class Players {
 
 
     public void reinitialize(){
-
-
 
         for (int i = 0; i < PLAYER_COUNT; i++){
             X[i] = Xi[i];
@@ -149,15 +141,17 @@ public class Players {
         }
     }
 
+    // Create icons representing screens (blocks)
     public void createScreenIcons() {
+        // Define paint
         paintScreen = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintScreen.setStyle(Paint.Style.STROKE);
         paintScreen.setTextAlign(Paint.Align.CENTER);
         paintScreen.setStrokeWidth(LINEWIDTH);
         paintScreen.setColor(context.getResources().getColor(R.color.husky_dark_gray));
 
+        // Loop on players
         for (int i = 0; i < PLAYER_COUNT; i++) {
-
             // Create temporary icon and canvas
             iconScreenOriginal[i] = Bitmap.createBitmap(WIDTH_SCREEN + LINEWIDTH, HEIGHT_SCREEN + LINEWIDTH, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(iconScreenOriginal[i]);
@@ -165,10 +159,8 @@ public class Players {
             // Create T shaped drawing
             canvas.drawLine((float) HEIGHT_SCREEN * 3 / 4, (float) WIDTH_SCREEN / 2, HEIGHT_SCREEN, (float) WIDTH_SCREEN / 2, paintScreen);
             canvas.drawLine(HEIGHT_SCREEN, WIDTH_SCREEN / 3, HEIGHT_SCREEN, WIDTH_SCREEN * 2 / 3, paintScreen);
-            //canvas.drawRect(0,0,WIDTH,HEIGHT,paint);
 
             // Create rotation matrix
-            //rotation = 0;
             matrix.setRotate(screenAngle[i]);
 
             // Create rotated icon, based on rotation matrix
@@ -176,6 +168,7 @@ public class Players {
         }
     }
 
+    // Update screen icons
     public void updateScreenIcons(){
         for (int i = 0; i < PLAYER_COUNT; i++) {
             if (screenPresent[i]) {
@@ -187,6 +180,7 @@ public class Players {
         }
     }
 
+    // Update screen icon (just one icon)
     public void updateScreenIcon(int i){
 
         if (screenPresent[i]) {
@@ -199,8 +193,7 @@ public class Players {
     }
     // Update player locations and build map of points
     public int updatePositions(MotionEvent event, Location touch) {
-        //Players player = players[playerIndex];
-        //float[] output = new float[]{-1, -1, -1};
+
         int output = -1;
 
         for (int j = 0; j < PLAYER_COUNT; j++) {
@@ -236,9 +229,6 @@ public class Players {
             float distanceToTouch = euclideanDistance(touch.X, X[j],
                     touch.Y, Y[j]);
 
-            //Create repository points traversed by player
-            //List<List<float[]>> data = dataPlayers.get(name[j]);
-
             //Address each touch event
             switch (event.getAction()) {
 
@@ -251,7 +241,7 @@ public class Players {
                         // Move path to location of current touch event
                         path[j].moveTo(X[j], Y[j]);
 
-                        output = j;
+                        //output = j;
                     }
                     break;
 
@@ -275,9 +265,6 @@ public class Players {
                         if (screenAngle[j] < 0){screenAngle[j] = screenAngle[j] + 360;}
 
                         if(screenPresent[j]){
-                            //if(screenPresent[j] && (X[j] != touch.X)){
-
-
                             // Redraw icon
                             updateScreenIcon(j);
                         }
@@ -285,10 +272,6 @@ public class Players {
                         X[j] = touch.X;
                         Y[j] = touch.Y;
                         output = j;
-                        // Create output array
-                        //output[0] = j;
-                        //output[1] = X[j];
-                        //output[2] = Y[j];
                     }
                     break;
 
@@ -302,34 +285,14 @@ public class Players {
                         // Toggle selection status (selection event is complete)
                         selectionStatus[j] = false;
 
-                        output = j;
-                        // Create output array
-                        //output[0] = j;
-                        //output[1] = X[j];
-                        //output[2] = Y[j];
+                        //output = j;
                     }
                     break;
                 default:
-                    //return false;
             }
-
-            //return player[j];
         }
-
-
         return output;
     }
-
-/*
-    // Create path and path format
-    public void createPath(){
-        // Define formatting for path
-
-
-        // Create path
-        path = new Path();
-    }
-*/
 
     // Calculate Euclidean distance between points
     private float euclideanDistance(float x1, float x2, float y1, float y2) {
@@ -354,10 +317,12 @@ public class Players {
         return Y[playerIndex]-(float)ICON_SIZE/2;
     }
 
+    // Move player pPath to current player position
     public void pathMoveToPlayerPosition(int i){
         path[i].moveTo(X[i], Y[i]);
     }
 
+    // Move all player paths to current player positions
     public void pathsMoveToPlayerPositions(){
         for (int i = 0; i < PLAYER_COUNT; i++) {
             pathMoveToPlayerPosition(i);
@@ -397,16 +362,8 @@ public class Players {
         if (screenPresent[i]){
             updateScreenIcon(i);
         }
-
-
     }
-    /*public void updateXYFromPlay(float[] x, float[] y){
-        for (int i = 0; i < PLAYER_COUNT; i++) {
-            X[i] = x[i];
-            Y[i] = y[i];
-        }
-    }
-*/
+
     public void pathsReset(){
         for (int i = 0; i < PLAYER_COUNT; i++) {
             path[i].reset();
@@ -438,7 +395,6 @@ public class Players {
                 canvas.drawBitmap(iconScreen[i],getScreenX(i),getScreenY(i),null);
             }
         }
-
     }
 
     // Determine whether or not screen is displayed based on touch event and ball
@@ -456,7 +412,6 @@ public class Players {
             else if(distanceCheckScreen && ballCheck) {
                 screenPresent[i] = !screenPresent[i];
             }
-
         }
     }
 
@@ -471,13 +426,10 @@ public class Players {
             if (!ballCheck){
                 screenPresent[i] = false;
             }
-
-
         }
     }
 
     public float[] getCurrentData(int i){
-
         return new float[] {X[i], Y[i], screenPresent[i]?1.0f:0.0f, screenAngle[i]};
 
     }

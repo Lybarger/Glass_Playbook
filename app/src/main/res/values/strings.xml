@@ -1,27 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
-    <string name="app_name">Play Book</string>
+    <string name="app_name">Husky Glass</string>
+    <string name="title_activity_live_card_service">Husky Glass</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_record_play">RecordPlay</string>
-    <string name="button_record_new">Record New Play</string>
-
-    <string name="title_activity_live_card_service">Play Book</string>
     <string name="action_stop">Stop</string>
     <string name="action_reconnect">Reconnect</string>
 
-
-    <string name="buttonPlayExisting">Play Existing</string>
-    <string name="buttonRemovePlay">Delete Plays</string>
-    <string name="buttonCreateNewPlay">Create New</string>
-    <string name="buttonInitializationComplete">Initialization Complete</string>
-    <string name="buttonIncrementStage">Increment Stage</string>
-    <string name="buttonPlayComplete">Play Complete</string>
-
-
-    <string name="buttonOkay">OK</string>
-    <string name="buttonCancel">Cancel</string>
-    <string name="titleSelectFileToPlay">Select play</string>
-    <string name="titleSelectFileToRemove">Select plays to delete</string>
 
 </resources>
